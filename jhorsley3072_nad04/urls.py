@@ -15,8 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include 
+from django.conf import settings
+from django.conf.urls.satic import satic
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+
+urlpatterns += satic(settings.STATIC_URL, document_root = settings.STATIC_ROOT)
+urlpatterns += satic(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
