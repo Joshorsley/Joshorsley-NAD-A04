@@ -106,5 +106,9 @@ def delete_post(request, pk):
     obj = Post.objects.get(pk=pk)
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         obj.delete()
+        return JsonResponse({
+            'title': new_title,
+            'body': new_body,
+        })
         return JsonResponse({'message': 'Post deleted successfully'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
