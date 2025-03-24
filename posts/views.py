@@ -103,12 +103,13 @@ def update_post(request, pk):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def delete_post(request, pk):
-    obj = Post.objects.get(pk=pk)
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        obj.delete()
-        return JsonResponse({
-            'title': new_title,
-            'body': new_body,
-        })
-        return JsonResponse({'message': 'Post deleted successfully'})
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    try:
+        obj = Post.objects.get(pk=pk)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            obj.delete()
+            return JsonResponse({'message': 'Post deleted successfully'})
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+    except Post.DoesNotExist:
+        return JsonResponse({'error': 'Post not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
