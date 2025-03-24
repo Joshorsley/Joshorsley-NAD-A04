@@ -35,9 +35,9 @@ const getCookie = (name) => {
 }
 const csrftoken = getCookie('csrftoken');
 
-backBtn.addEventListener('click', ()=>{
-    history.back()
-})
+// backBtn.addEventListener('click', ()=>{
+//     history.back()
+// })
 
 $.ajax({
     type: 'GET',
