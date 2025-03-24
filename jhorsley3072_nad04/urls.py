@@ -26,6 +26,7 @@ urlpatterns = [
     path('', include('posts.urls', namespace='posts')),
     path('profiles/', include('profiles.urls', namespace='profiles')),
     path('favicon.ico', lambda request: HttpResponse(status=204), name='favicon'),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)

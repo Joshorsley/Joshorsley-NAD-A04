@@ -1,16 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Post, Photo
 from django.http import JsonResponse, HttpResponse
 from .forms import PostForm
 from profiles.models import Profile
 from .utils import action_permission
 from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 
 @login_required
 def post_list_and_create(request):
     form = PostForm(request.POST or None)
-    #qs= Post.objects.all()
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         if form.is_valid():
             author = Profile.objects.get(user=request.user)
@@ -22,7 +22,6 @@ def post_list_and_create(request):
                 'body': instance.body,
                 'author': instance.author.user.username,
                 'id': instance.id
-
             })
 
     context = {
@@ -62,21 +61,22 @@ def load_post_data_view(request, num_posts):
             }
             data.append(item)
         return JsonResponse({'data': data[lower:upper], 'size': size})
-    # Add a default return for non-AJAX requests
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    # Redirect for non-AJAX requests
+    return redirect('posts:main-board')
 
 @login_required
 def post_detail_data_view(request, pk):
-    obj = Post.objects.get(pk=pk)
-    data = {
-        'id': obj.id,
-        'title': obj.title,
-        'body': obj.body,
-        'author': obj.author.user.username,
-        'logged_in': request.user.username,
-
-    }
-    return JsonResponse({'data': data})
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # Updated from request.is_ajax()
+        obj = Post.objects.get(pk=pk)
+        data = {
+            'id': obj.id,
+            'title': obj.title,
+            'body': obj.body,
+            'author': obj.author.user.username,
+            'logged_in': request.user.username,
+        }
+        return JsonResponse({'data': data})
+    return redirect('posts:main-board')
 
 @login_required
 def like_unlike_post(request):
@@ -87,10 +87,10 @@ def like_unlike_post(request):
             liked = False
             obj.liked.remove(request.user)
         else:
-            liked = True  # Changed from 'like' to 'liked'
+            liked = True
             obj.liked.add(request.user)
-        return JsonResponse({'liked': liked, 'count': obj.liked.count()})  # Changed to obj.liked.count()
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+        return JsonResponse({'liked': liked, 'count': obj.liked.count()})
+    return redirect('posts:main-board')
 
 @login_required
 @action_permission
@@ -106,7 +106,7 @@ def update_post(request, pk):
             'title': new_title,
             'body': new_body,
         })
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    return redirect('posts:main-board')
 
 @login_required
 @action_permission
@@ -116,18 +116,25 @@ def delete_post(request, pk):
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             obj.delete()
             return JsonResponse({'message': 'Post deleted successfully'})
-        return JsonResponse({'error': 'Invalid request'}, status=400)
+        # Redirect for non-AJAX requests
+        obj.delete()
+        return redirect('posts:main-board')
     except Post.DoesNotExist:
-        return JsonResponse({'error': 'Post not found'}, status=404)
+        return JsonResponse({'error': 'Post not found'}, status=404) if request.headers.get('x-requested-with') == 'XMLHttpRequest' else redirect('posts:main-board')
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error': str(e)}, status=500) if request.headers.get('x-requested-with') == 'XMLHttpRequest' else redirect('posts:main-board')
 
 @login_required
 def image_upload_view(request):
-    # print(request.FILES)
     if request.method == 'POST':
         img = request.FILES.get('file')
         new_post_id = request.POST.get('new_post_id')
-        post = Post.objects.get(id=new_post_id)
-        Photo.objects.create(image=img, post=post)
-    return HttpResponse()
+        try:
+            post = Post.objects.get(id=new_post_id)
+            Photo.objects.create(image=img, post=post)
+            return HttpResponse(status=200)
+        except Post.DoesNotExist:
+            return JsonResponse({'error': 'Post not found'}, status=404) if request.headers.get('x-requested-with') == 'XMLHttpRequest' else redirect('posts:main-board')
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500) if request.headers.get('x-requested-with') == 'XMLHttpRequest' else redirect('posts:main-board')
+    return redirect('posts:main-board')  # Redirect for GET requests

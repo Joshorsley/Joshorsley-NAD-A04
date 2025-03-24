@@ -1,3 +1,4 @@
+from django.shortcuts import render, redirect
 from functools import wraps
 from django.http import HttpResponse, JsonResponse
 from profiles.models import Profile
@@ -35,7 +36,7 @@ def action_permission(func):
                 if request.headers.get('x-requested-with') == 'XMLHttpRequest':
                     return JsonResponse({'error': 'Access denied'}, status=403)
                 else:
-                    return HttpResponse('Access denied - you need to be the author', status=403)
+                    return redirect('posts:main-board')
         except Exception as e:
             print(f"Error in permission check: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
