@@ -11,3 +11,15 @@
 .dz:hover {
     background-color: aliceblue;
 }
+
+.constrained-carousel {
+    max-width: 800px;  
+    margin: 0 auto;    
+}
+
+.constrained-carousel .carousel-item img {
+    max-height: 500px; 
+    width: auto;       
+    margin: 0 auto;    
+    object-fit: contain; 
+}
