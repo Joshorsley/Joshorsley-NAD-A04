@@ -1,6 +1,5 @@
 {% url 'posts:main-board' as path_to_home %}
 {% url 'profiles:my-profile' as path_to_my_profile %}
-
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="{{path_to_home}}">Posts</a>
@@ -8,7 +7,8 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+      <!-- ms-auto class pushes the navbar items to the right -->
+      <ul class="navbar-nav ms-auto">
         <li class="nav-item">
           <a class="nav-link {% if request.path == path_to_home %}active{% endif %}" href="{{path_to_home}}">Home</a>
         </li>
@@ -16,6 +16,14 @@
           <a class="nav-link {% if request.path == path_to_my_profile %}active{% endif %}" href="{{path_to_my_profile}}">My Profile</a>
         </li>
         {% if user.is_authenticated %}
+        <!-- Add user avatar -->
+        <li class="nav-item d-flex align-items-center ms-2">
+          {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="User Avatar" class="rounded-circle" style="width: 30px; height: 30px;">
+          {% else %}
+            <img src="/static/default_avatar.png" alt="Default Avatar" class="rounded-circle" style="width: 30px; height: 30px;">
+          {% endif %}
+        </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'logout' %}">Logout</a>
         </li>
