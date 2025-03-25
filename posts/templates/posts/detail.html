@@ -77,7 +77,7 @@
         </button>
     </div>
 {% else %}
-    <div class="mt-2 mb-2"> No photos to show</div>
+    {% comment %} <div class="mt-2 mb-2"> No photos to show</div> {% endcomment %}
 {% endif %}
   
     <hr>
@@ -99,12 +99,13 @@
         </div>
     </div>
 
+    <div class="mt-1" id="post-box"></div>
     <a href="{% url 'posts:main-board'%}"id="back-btn" class="btn btn-info">back</a>
     <button id ="update-btn" class="btn btn-primary not-visible" data-bs-toggle="modal" data-bs-target="#updateModal">update</button>
     <button id ="delete-btn" class="btn btn-danger not-visible"data-bs-toggle="modal" data-bs-target="#deleteModal">delete</button>
     <div id="spinner-box" class="text-center">
         <div class="spinner-border" role="status"></div>
     </div>
-    <div class="mt-1" id="post-box"></div>
+    
 
 {% endblock content%}
